@@ -1,26 +1,22 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Editor from "./components/Editor";
 import Preview from "./components/Preview ";
+import { useDispatch } from 'react-redux';
+import { fetchMarkdown } from "./redux/features/markdownSlice";
 
 const App = () => {
-  const [markdown, setMarkdown] = useState("");
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchMarkdown = async () => {
-      const response = await axios.get('http://localhost:5000/api/markdown', {
-        params: { defaultMarkdown: "# Welcome to the Markdown Editor" }
-      });
-      setMarkdown(response.data.markdown);
-    };
-
-    fetchMarkdown();
+    dispatch(fetchMarkdown());
   }, []);
+
 
   return (
     <main className="w-full h-screen flex flex-col sm:flex-row bg-gray-800 text-white">
-      <Editor markdown={markdown} setMarkdown={setMarkdown} />
-      <Preview markdown={markdown} />
+      <Editor />
+      <Preview />
     </main>
   );
 };

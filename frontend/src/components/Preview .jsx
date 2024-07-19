@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/monokai.css';
+import { useSelector } from 'react-redux';
 
 const md = new MarkdownIt({
   highlight: function (str, lang) {
@@ -22,8 +23,9 @@ const md = new MarkdownIt({
   }
 });
 
-const Preview = ({ markdown }) => {
-  const parsed = md.render(markdown);
+const Preview = () => {
+  const { data } = useSelector((state) => state.markdown);
+  const parsed = md.render(data || "");
 
   return (
     <div className="flex-1 min-h-1/2 sm:min-h-full overflow-auto">

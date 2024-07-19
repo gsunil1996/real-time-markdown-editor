@@ -5,5 +5,4 @@ export const store = configureStore({
   reducer: {
     markdown: markdownReducer,
   },
-  devTools: true,
 });

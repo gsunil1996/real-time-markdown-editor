@@ -1,51 +1,91 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+
+// Initial state
+const initialState = {
+  data: "",
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+  error: "",
+};
 
 export const fetchMarkdown = createAsyncThunk(
   "markdown/fetchMarkdown",
   async () => {
-    const response = await axios.get("http://localhost:5000/api/markdown", {
+    const { data } = await axios.get("http://localhost:5000/api/markdown", {
       params: { defaultMarkdown: "# Welcome to the Markdown Editor" },
     });
-    return response.data.markdown;
+    return data;
   }
 );
 
-export const saveMarkdown = createAsyncThunk(
-  "markdown/saveMarkdown",
-  async (markdown) => {
-    await axios.post("http://localhost:5000/api/markdown", { markdown });
+export const postMarkdown = createAsyncThunk(
+  "markdown/postMarkdown",
+  async (payload) => {
+    const { markdown } = payload;
+    const { data } = await axios.post("http://localhost:5000/api/markdown", {
+      markdown,
+    });
+    return data;
   }
 );
 
-const markdownSlice = createSlice({
+export const markdownSlice = createSlice({
   name: "markdown",
-  initialState: {
-    content: "",
-    status: "idle",
-    error: null,
-  },
-  reducers: {
-    setMarkdown: (state, action) => {
-      state.content = action.payload;
-    },
-  },
+  initialState,
+  reducers: {},
   extraReducers: (builder) => {
     builder
+      // fetchMarkdown
       .addCase(fetchMarkdown.pending, (state) => {
-        state.status = "loading";
+        state.data = null;
+        state.isLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = "";
       })
       .addCase(fetchMarkdown.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.content = action.payload;
+        state.data = action.payload.markdown;
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = "";
       })
       .addCase(fetchMarkdown.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+        state.data = null;
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.error.message
+          ? action.error.message
+          : "An unknown error occurred";
+      })
+      // postMarkdown
+      .addCase(postMarkdown.pending, (state) => {
+        state.data = null;
+        state.isLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = "";
+      })
+      .addCase(postMarkdown.fulfilled, (state, action) => {
+        state.data = action.payload.markdown;
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.error = "";
+      })
+      .addCase(postMarkdown.rejected, (state, action) => {
+        state.data = null;
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.error = action.error.message
+          ? action.error.message
+          : "An unknown error occurred";
       });
   },
 });
-
-export const { setMarkdown } = markdownSlice.actions;
 
 export default markdownSlice.reducer;
